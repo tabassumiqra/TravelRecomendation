@@ -6,16 +6,20 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError('');
         try {
             await login(email, password);
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');
+            setIsLoading(false);
         }
     };
 
@@ -46,9 +50,12 @@ const Login = () => {
                 </div>
                 <button 
                     type="submit" 
-                    className="w-full bg-eco-green hover:bg-eco-dark text-white font-bold py-3 rounded-lg transition"
+                    disabled={isLoading}
+                    className={`w-full text-white font-bold py-3 rounded-lg transition ${
+                        isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-eco-green hover:bg-eco-dark'
+                    }`}
                 >
-                    Login
+                    {isLoading ? 'Processing...' : 'Login'}
                 </button>
             </form>
         </div>

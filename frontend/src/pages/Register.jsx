@@ -7,16 +7,20 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const { register } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError('');
         try {
             await register(name, email, password);
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed');
+            setIsLoading(false);
         }
     };
 
@@ -57,9 +61,12 @@ const Register = () => {
                 </div>
                 <button 
                     type="submit" 
-                    className="w-full bg-eco-accent hover:bg-eco-green text-white font-bold py-3 rounded-lg transition"
+                    disabled={isLoading}
+                    className={`w-full text-white font-bold py-3 rounded-lg transition ${
+                        isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-eco-accent hover:bg-eco-green'
+                    }`}
                 >
-                    Create Account
+                    {isLoading ? 'Processing...' : 'Create Account'}
                 </button>
             </form>
         </div>

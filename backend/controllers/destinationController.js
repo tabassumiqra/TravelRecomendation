@@ -50,16 +50,41 @@ export const getDestinationById = async (req, res) => {
         const destination = await Destination.findById(req.params.id);
 
         if (destination) {
-            // Mock Real-time Weather Integration
-            const mockWeather = {
-                temperature: Math.floor(Math.random() * 15) + 20, // 20-35 C
-                condition: ['Sunny', 'Cloudy', 'Clear', 'Rainy'][
-                    Math.floor(Math.random() * 4)
-                ],
-                humidity: Math.floor(Math.random() * 50) + 40, // 40-90%
-            };
+            let weatherData = null;
+            
+            // Try fetching real weather data if key exists
+            if (process.env.WEATHER_API_KEY && destination.coordinates) {
+                try {
+                    const { lat, lng } = destination.coordinates;
+                    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${process.env.WEATHER_API_KEY}&units=metric`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        weatherData = {
+                            temperature: Math.round(data.main.temp),
+                            condition: data.weather[0].main,
+                            humidity: data.main.humidity,
+                        };
+                    } else {
+                        console.error('Weather API response error. Check the key. Falling back to mock data.');
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch real weather:', err.message);
+                }
+            }
 
-            res.json({ ...destination.toObject(), weather: mockWeather });
+            // Fallback mock real-time weather integration
+            if (!weatherData) {
+                weatherData = {
+                    temperature: Math.floor(Math.random() * 15) + 20, // 20-35 C
+                    condition: ['Sunny', 'Cloudy', 'Clear', 'Rainy'][
+                        Math.floor(Math.random() * 4)
+                    ],
+                    humidity: Math.floor(Math.random() * 50) + 40, // 40-90%
+                };
+            }
+
+            res.json({ ...destination.toObject(), weather: weatherData });
         } else {
             res.status(404).json({ message: 'Destination not found' });
         }
