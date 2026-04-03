@@ -72,6 +72,19 @@ const destinations = [
         carbonFootprint: 'Low',
         ecoCertifications: [],
         coordinates: { lat: 31.7917, lng: -7.0926 }
+    },
+    {
+        name: 'Kerala Backwaters Eco Houseboat',
+        country: 'India',
+        description: 'Glide peacefully through the lush backwaters of Kerala on a traditional, solar-powered houseboat.',
+        image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1000&q=80',
+        budget: 'Medium',
+        climate: 'Tropical',
+        interests: ['Relaxation', 'Culture', 'Wildlife'],
+        sustainabilityScore: 89,
+        carbonFootprint: 'Low',
+        ecoCertifications: ['Green Leaf'],
+        coordinates: { lat: 9.4981, lng: 76.3388 }
     }
 ];
 

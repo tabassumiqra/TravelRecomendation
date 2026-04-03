@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import api from '../services/api';
 
 const DestinationDetails = () => {
     const { id } = useParams();
-    const [destination, setDestination] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const location = useLocation();
+    const preloadedData = location.state?.destinationData;
+    const [destination, setDestination] = useState(preloadedData || null);
+    const [loading, setLoading] = useState(!preloadedData);
 
     useEffect(() => {
+        if (preloadedData) return;
+
         const fetchDestination = async () => {
             try {
                 const { data } = await api.get(`/destinations/${id}`);
@@ -85,6 +89,14 @@ const DestinationDetails = () => {
                     <Link to="/results" className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-6 rounded-lg font-bold transition">
                         Back to Results
                     </Link>
+                    <a 
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination.name + ', ' + destination.country)}`}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-bold transition"
+                    >
+                        View on Google Maps
+                    </a>
                     {/* Add Save Feature could trigger an API hereafter */}
                     <button className="bg-eco-green hover:bg-eco-dark text-white py-3 px-6 rounded-lg font-bold transition">
                         Save Destination

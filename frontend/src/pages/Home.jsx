@@ -5,6 +5,7 @@ const Home = () => {
     const navigate = useNavigate();
     const [budget, setBudget] = useState('Medium');
     const [climate, setClimate] = useState('Tropical');
+    const [country, setCountry] = useState('');
     const [interests, setInterests] = useState([]);
 
     const handleInterestChange = (e) => {
@@ -19,6 +20,7 @@ const Home = () => {
         const searchParams = new URLSearchParams({
             budget,
             climate,
+            country,
             interests: interests.join(',')
         });
         navigate(`/results?${searchParams.toString()}`);
@@ -58,6 +60,17 @@ const Home = () => {
                             <option value="Arid">Arid</option>
                             <option value="Cold">Cold</option>
                         </select>
+                    </div>
+
+                    <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold mb-2 text-eco-dark">Specific Country (Optional)</label>
+                        <input 
+                            type="text" 
+                            placeholder="e.g. Indonesia, USA, Switzerland"
+                            value={country} 
+                            onChange={(e) => setCountry(e.target.value)} 
+                            className="w-full border rounded-lg p-3 bg-gray-50 focus:outline-eco-accent"
+                        />
                     </div>
                 </div>
 

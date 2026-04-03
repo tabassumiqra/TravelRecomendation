@@ -27,7 +27,7 @@ const Results = () => {
     return (
         <div className="max-w-5xl mx-auto mt-10">
             <h1 className="text-3xl font-bold mb-6 text-eco-dark text-center">Your Recommended Destinations</h1>
-            
+
             {destinations.length === 0 ? (
                 <div className="text-center bg-white p-8 rounded-lg shadow">
                     <p className="text-lg text-gray-600">No exact matches found. Try adjusting your preferences.</p>
@@ -41,16 +41,24 @@ const Results = () => {
                             <div className="p-4">
                                 <h3 className="text-xl font-bold mb-2">{dest.name}</h3>
                                 <p className="text-sm text-gray-600 mb-4 h-10 overflow-hidden">{dest.description}</p>
-                                
+
                                 <div className="flex justify-between items-center text-sm mb-4">
                                     <span className="bg-eco-light text-eco-green px-2 py-1 rounded-full font-semibold">
                                         Score: {dest.sustainabilityScore}/100
                                     </span>
-                                    <span className="text-gray-500">{dest.country}</span>
+                                    <span className="text-gray-500 font-semibold">{dest.country}</span>
                                 </div>
+
+                                {dest.weather && (
+                                    <div className="flex justify-between items-center bg-blue-50 text-blue-800 p-2 rounded mb-4 text-sm font-semibold border border-blue-100">
+                                        <span>Live Weather:</span>
+                                        <span>{dest.weather.temperature}°C, {dest.weather.condition}</span>
+                                    </div>
+                                )}
                                 
-                                <Link 
-                                    to={`/destination/${dest._id}`} 
+                                <Link
+                                    to={`/destination/${dest._id}`}
+                                    state={{ destinationData: dest }}
                                     className="block text-center bg-eco-dark hover:bg-black text-white py-2 rounded transition"
                                 >
                                     View Details

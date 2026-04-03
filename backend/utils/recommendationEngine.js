@@ -18,14 +18,26 @@ export const getRecommendations = (destinations, userPrefs) => {
 
         // Hard filter - Budget must match
         if (dest.budget !== budget) {
-             // In a strict system we might return early, but let's just score it lower
-             score -= 20; 
+            // In a strict system we might return early, but let's just score it lower
+            score -= 20;
         } else {
-             score += 15;
+            score += 15;
         }
 
-        // Climate Match
-        if (dest.climate === climate) score += 10;
+        // Dynamic Climate Match using real-time weather
+        let climateMatch = false;
+        if (dest.weather) {
+            const { temperature, humidity } = dest.weather;
+            if (climate === 'Cold' && temperature < 15) climateMatch = true;
+            else if (climate === 'Tropical' && temperature > 25) climateMatch = true;
+            else if (climate === 'Temperate' && temperature >= 15 && temperature <= 25) climateMatch = true;
+            else if (climate === 'Arid' && humidity < 40) climateMatch = true;
+        } else {
+            // Fallback if weather wasn't fetched
+            if (dest.climate === climate) climateMatch = true;
+        }
+
+        if (climateMatch) score += 15; // Increased weight since real-time weather is important and accurate
 
         // Interests Match
         let matchedInterests = 0;
@@ -45,14 +57,15 @@ export const getRecommendations = (destinations, userPrefs) => {
         if (dest.carbonFootprint === 'Low') score += 10;
         else if (dest.carbonFootprint === 'Moderate') score += 5;
 
-        // Only recommend destinations with a positive/acceptable score
-        if (score > 0) {
-            scoredDestinations.push({ destination: dest, matchScore: score });
-        }
+        // Add all destinations to the list, so user can see all places ordered by matchScore
+        scoredDestinations.push({ destination: dest, matchScore: score });
     });
 
     // Sort by descending score
     scoredDestinations.sort((a, b) => b.matchScore - a.matchScore);
 
-    return scoredDestinations.map(item => item.destination);
+    return scoredDestinations.map(item => {
+        // We can safely return item.destination as it is already plain object from .toObject()
+        return item.destination;
+    });
 };
