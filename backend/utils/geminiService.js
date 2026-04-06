@@ -56,6 +56,7 @@ Return the results STRICTLY as a JSON array where each object represents a desti
         return destinations.map((dest, index) => ({
             ...dest,
             _id: `gemini_${index}_${Date.now()}`,
+            image: `https://picsum.photos/seed/${encodeURIComponent(dest.name)}/1000/800`,
             weather: {
                 temperature: dest.climate === 'Cold' ? Math.floor(Math.random() * 10) + 0 : 
                              dest.climate === 'Tropical' ? Math.floor(Math.random() * 10) + 26 :

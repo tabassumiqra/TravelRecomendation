@@ -85,7 +85,7 @@ const DestinationDetails = () => {
                     )}
                 </div>
 
-                <div className="flex space-x-4">
+                <div className="flex space-x-4 flex-wrap gap-y-4">
                     <Link to="/results" className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-6 rounded-lg font-bold transition">
                         Back to Results
                     </Link>
@@ -101,6 +101,36 @@ const DestinationDetails = () => {
                     <button className="bg-eco-green hover:bg-eco-dark text-white py-3 px-6 rounded-lg font-bold transition">
                         Save Destination
                     </button>
+                </div>
+
+                <div className="mt-8 border-t pt-6 mb-4">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">Book Your Transport & Stay</h3>
+                    <div className="flex flex-wrap gap-4">
+                        <a 
+                            href={`https://www.google.com/travel/flights?q=Flights%20to%20${encodeURIComponent(destination.name)}`}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-6 rounded-lg font-bold transition flex items-center shadow-md"
+                        >
+                            <span className="mr-2">✈️</span> Book Flights
+                        </a>
+                        <a 
+                            href={`https://www.rome2rio.com/s/Anywhere/${encodeURIComponent(destination.name)}`}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded-lg font-bold transition flex items-center shadow-md"
+                        >
+                            <span className="mr-2">🚆</span> Book Train / Bus
+                        </a>
+                        <a 
+                            href={`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(destination.name + ', ' + destination.country)}`}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="bg-blue-800 hover:bg-blue-900 text-white py-2 px-6 rounded-lg font-bold transition flex items-center shadow-md"
+                        >
+                            <span className="mr-2">🏨</span> Book Accommodation
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
