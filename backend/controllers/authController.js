@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Destination from '../models/Destination.js';
 import generateToken from '../utils/generateToken.js';
 
 // @desc    Register a new user
@@ -78,6 +79,61 @@ export const getUserProfile = async (req, res) => {
         } else {
             res.status(404).json({ message: 'User not found' });
         }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Toggle Save Destination (Add or Remove)
+// @route   POST /api/auth/save-destination
+// @access  Private
+export const toggleSaveDestination = async (req, res) => {
+    try {
+        const { destination } = req.body;
+        if (!destination) {
+            return res.status(400).json({ message: 'Destination data is required' });
+        }
+
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        let destId = destination._id;
+
+        // If 'destination' is an AI/dynamic one that doesn't exist in MongoDB yet
+        if (destId.startsWith('dynamic_') || destId.startsWith('openrouter_') || destId.startsWith('gemini_')) {
+            // Check if we previously saved this by name and country
+            let existingDest = await Destination.findOne({ name: destination.name, country: destination.country });
+            
+            if (!existingDest) {
+                // Remove the fake _id so MongoDB can generate a real one
+                const newDestData = { ...destination };
+                delete newDestData._id;
+                delete newDestData.weather; // optionally keep out volatile data like current weather
+                
+                existingDest = await Destination.create(newDestData);
+            }
+            destId = existingDest._id.toString();
+        }
+
+        // Check if destination is already in saved list
+        const isSaved = user.savedDestinations.includes(destId);
+
+        if (isSaved) {
+            // Remove it
+            user.savedDestinations = user.savedDestinations.filter((id) => id.toString() !== destId);
+        } else {
+            // Add it
+            user.savedDestinations.push(destId);
+        }
+
+        await user.save();
+
+        res.json({
+            savedDestinations: user.savedDestinations,
+            message: isSaved ? 'Destination removed' : 'Destination saved'
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

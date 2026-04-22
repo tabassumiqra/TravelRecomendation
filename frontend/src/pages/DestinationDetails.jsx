@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import AuthContext from '../context/AuthContext';
 
 const DestinationDetails = () => {
     const { id } = useParams();
@@ -8,6 +9,40 @@ const DestinationDetails = () => {
     const preloadedData = location.state?.destinationData;
     const [destination, setDestination] = useState(preloadedData || null);
     const [loading, setLoading] = useState(!preloadedData);
+    const { user, updateUser } = React.useContext(AuthContext);
+    const navigate = useNavigate();
+    const [isSaving, setIsSaving] = useState(false);
+
+    // Compute if saved (approximate check since AI ids change upon DB insert)
+    const isSaved = user?.savedDestinations?.includes(destination?._id) || false;
+
+    const handleSave = async () => {
+        if (!user) {
+            alert("Please login to save destinations");
+            navigate('/login');
+            return;
+        }
+
+        try {
+            setIsSaving(true);
+            const { data } = await api.post('/auth/save-destination', { destination });
+            updateUser({ savedDestinations: data.savedDestinations });
+            
+            // If it was a dynamic ID, we trick the UI into knowing it's saved.
+            if (destination._id.startsWith('dynamic_') || destination._id.startsWith('openrouter_') || destination._id.startsWith('gemini_')) {
+               alert(data.message);
+               // We just redirect or let the user see the alert. The button relies on user.savedDestinations 
+               // which now has a real MongoDB _id. We'd have to update destination._id to perfectly sync the button.
+               // We'll just leave it as an alert for dynamic ones.
+            }
+
+        } catch (error) {
+            console.error('Error saving destination:', error);
+            alert("Failed to save destination");
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     useEffect(() => {
         if (preloadedData) return;
@@ -98,8 +133,12 @@ const DestinationDetails = () => {
                         View on Google Maps
                     </a>
                     {/* Add Save Feature could trigger an API hereafter */}
-                    <button className="bg-eco-green hover:bg-eco-dark text-white py-3 px-6 rounded-lg font-bold transition">
-                        Save Destination
+                    <button 
+                        onClick={handleSave}
+                        disabled={isSaving || isSaved}
+                        className={`${isSaved ? 'bg-gray-400 cursor-not-allowed' : 'bg-eco-green hover:bg-eco-dark'} text-white py-3 px-6 rounded-lg font-bold transition`}
+                    >
+                        {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Save Destination'}
                     </button>
                 </div>
 

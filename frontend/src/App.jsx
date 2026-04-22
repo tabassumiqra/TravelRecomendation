@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Results from './pages/Results';
 import DestinationDetails from './pages/DestinationDetails';
+import SavedDestinations from './pages/SavedDestinations';
 
 function App() {
   const { user, logout } = useContext(AuthContext);
@@ -27,6 +28,7 @@ function App() {
             {user ? (
               <div className="flex items-center space-x-4">
                 <span className="font-semibold">Hi, {user.name}</span>
+                <Link to="/saved" className="hover:text-eco-light transition font-semibold">Saved Destinations</Link>
                 <button 
                   onClick={handleLogout}
                   className="bg-eco-dark hover:bg-gray-800 px-4 py-2 rounded transition"
@@ -53,6 +55,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/results" element={<Results />} />
           <Route path="/destination/:id" element={<DestinationDetails />} />
+          <Route path="/saved" element={<SavedDestinations />} />
         </Routes>
       </main>
 
