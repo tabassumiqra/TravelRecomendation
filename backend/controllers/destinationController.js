@@ -1,7 +1,7 @@
 import Destination from '../models/Destination.js';
 import User from '../models/User.js';
 import { getRecommendations } from '../utils/recommendationEngine.js';
-import { getGeminiRecommendations } from '../utils/geminiService.js';
+import { getOpenRouterRecommendations } from '../utils/openRouterService.js';
 
 // @desc    Get all destinations or get recommended ones
 // @route   GET /api/destinations
@@ -18,17 +18,17 @@ export const getDestinations = async (req, res) => {
             // Assume interests come as comma separated
             const parsedInterests = interests ? interests.split(',') : [];
 
-            // Try to get AI powered recommendations via Gemini
-            if (process.env.GEMINI_API_KEY) {
+            // Try to get AI powered recommendations via OpenRouter
+            if (process.env.OPENROUTER_API_KEY) {
                 try {
-                    const geminiResults = await getGeminiRecommendations({
+                    const aiResults = await getOpenRouterRecommendations({
                         budget,
                         climate,
                         interests: parsedInterests,
                         country
                     });
 
-                    if (geminiResults && geminiResults.length > 0) {
+                    if (aiResults && aiResults.length > 0) {
                         if (req.user) {
                             const user = await User.findById(req.user._id);
                             if (user) {
@@ -40,14 +40,14 @@ export const getDestinations = async (req, res) => {
                                 await user.save();
                             }
                         }
-                        return res.json(geminiResults);
+                        return res.json(aiResults);
                     }
-                } catch (geminiErr) {
-                    console.error("Gemini AI check failed, falling back to local datastore.", geminiErr);
+                } catch (aiErr) {
+                    console.error("OpenRouter AI check failed, falling back to local datastore.", aiErr);
                 }
             }
 
-            // If Gemini AI failed or isn't configured, and user searched for a country, use OpenWeather API directly
+            // If OpenRouter AI failed or isn't configured, and user searched for a country, use OpenWeather API directly
             if (country && process.env.WEATHER_API_KEY) {
                 try {
                     const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${country}&appid=${process.env.WEATHER_API_KEY}&units=metric`);
